@@ -21,6 +21,8 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import OrderDto from "../api/models/Order";
 import ProductDTO, { ProductOrderDTO } from "../api/models/Product";
+import { orderProductRepository } from "../api/repositories/OrderProduct.repository";
+import { ShowLoader } from "../tools/loader";
 
 type OrderFormProps = {
   title: string;
@@ -52,11 +54,22 @@ const OrderForm: React.FC<OrderFormProps> = ({
     setSelectedProduct(null);
   };
 
-  const [selectedProduct, setSelectedProduct] = useState<ProductOrderDTO | null>(
-    null
-  );
+  const [selectedProduct, setSelectedProduct] =
+    useState<ProductOrderDTO | null>(null);
 
-  const removeProduct = (product: ProductOrderDTO) => {
+  const removeProduct = async (OrderCode: string, product: ProductOrderDTO) => {
+    try {
+      ShowLoader(true);
+      await orderProductRepository.deleteOrderProduct(
+        OrderCode,
+        +product.Product.ID
+      );
+    } catch (error: any) {
+      console.log(error);
+      alert(error?.message ?? "");
+    } finally {
+      ShowLoader(false);
+    }
     const products = getValues("Products");
     setValue(
       "Products",
@@ -227,9 +240,9 @@ const OrderForm: React.FC<OrderFormProps> = ({
       <RemoveProductModal
         message="Are you sure you want to remove this product from the order?"
         onClose={() => setOpenRemoveProductDialog(false)}
-        onConfirm={() => {
+        onConfirm={async () => {
           if (!selectedProduct) return;
-          removeProduct(selectedProduct);
+          await removeProduct(getValues("Order"), selectedProduct);
           setOpenRemoveProductDialog(false);
           updateFinalPrice(getValues("Products"));
         }}

@@ -7,7 +7,7 @@ class OrderRepository {
   constructor(private api: AxiosInstance) {}
   async getOrders(): Promise<HttpResponse<OrderDto[]>> {
     try {
-      const response = await this.api.get<HttpResponse<OrderDto[]>>("/orders");
+      const response = await this.api.get<HttpResponse<OrderDto[]>>("http://localhost:4000/orders");
       return response.data;
     } catch (e: any) {
       throw new Error(e?.message ?? "");

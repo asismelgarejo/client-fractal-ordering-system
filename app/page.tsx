@@ -20,10 +20,10 @@ const getData = async (): Promise<PageHomeProps> => {
   // compute total order
   data.map((order) => {
     order.Date = parseISO(order.Date + "");
-    order.FinalPrice = order.Products.reduce(
-      (prev, next) => prev + next.Qty * next.Product.UnitPrice,
-      0
-    );
+    // order.FinalPrice = order.Products.reduce(
+    //   (prev, next) => prev + next.Qty * next.Product.UnitPrice,
+    //   0
+    // );
   });
   return {
     data,
